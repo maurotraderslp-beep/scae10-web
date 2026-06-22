@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Calendário Escolar - SCAE10{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-calendar-event"></i> Calendário Escolar</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Upload Section -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-upload"></i> Upload do Calendário</h5>
+            </div>
+            <div class="card-body">
+                {% if pdf_exists %}
+                    <div class="alert alert-success mb-3">
+                        <i class="bi bi-check-circle"></i> Calendário já enviado
+                    </div>
+                    <form method="POST" action="{% url 'calendarios:upload' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Substituir arquivo atual:</strong></label>
+                            <input type="file" name="calendario_pdf" class="form-control" accept="application/pdf" required>
+                            <small class="text-muted">O arquivo atual será substituído</small>
+                        </div>
+                        <button type="submit" class="btn btn-warning w-100">
+                            <i class="bi bi-arrow-repeat"></i> Substituir PDF
+                        </button>
+                    </form>
+                    
+                    <hr>
+                    
+                    <form method="POST" action="{% url 'calendarios:excluir' %}" onsubmit="return confirm('Tem certeza que deseja excluir o calendário?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger w-100">
+                            <i class="bi bi-trash"></i> Excluir Calendário
+                        </button>
+                    </form>
+                {% else %}
+                    <div class="alert alert-info mb-3">
+                        <i class="bi bi-info-circle"></i> Nenhum calendário enviado
+                    </div>
+                    <form method="POST" action="{% url 'calendarios:upload' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Selecionar PDF:</strong></label>
+                            <input type="file" name="calendario_pdf" class="form-control" accept="application/pdf" required>
+                            <small class="text-muted">Formato: PDF | Tamanho máximo: 10MB</small>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-upload"></i> Enviar Calendário
+                        </button>
+                    </form>
+                {% endif %}
+                
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="bi bi-lightbulb"></i> Envie o calendário escolar em PDF para visualização
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Informações -->
+        <div class="card shadow-sm mt-3">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="bi bi-info-circle"></i> Informações</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i class="bi bi-file-earmark-pdf text-danger"></i> 
+                        <strong>Formato:</strong> Apenas PDF
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-hdd"></i> 
+                        <strong>Tamanho máx:</strong> 10MB
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-arrow-repeat"></i> 
+                        <strong>Atualização:</strong> Substitui o anterior
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- PDF Viewer Section -->
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-file-earmark-pdf"></i> Visualização do Calendário</h5>
+                {% if pdf_exists %}
+                    <a href="{% url 'calendarios:visualizar' %}" target="_blank" class="btn btn-sm btn-light">
+                        <i class="bi bi-box-arrow-up-right"></i> Abrir em nova aba
+                    </a>
+                {% endif %}
+            </div>
+            <div class="card-body p-0" style="min-height: 700px;">
+                {% if pdf_exists %}
+                    <iframe 
+                        src="{% url 'calendarios:visualizar' %}#toolbar=0&navpanes=0" 
+                        width="100%" 
+                        height="700" 
+                        style="border: none;">
+                        Seu navegador não suporta visualização de PDF.
+                        <a href="{% url 'calendarios:visualizar' %}">Clique aqui para baixar</a>
+                    </iframe>
+                {% else %}
+                    <div class="d-flex flex-column align-items-center justify-content-center" style="height: 700px; background: #f8f9fa;">
+                        <i class="bi bi-file-earmark-pdf" style="font-size: 8rem; color: #6c757d;"></i>
+                        <h4 class="text-muted mt-4">Nenhum calendário enviado</h4>
+                        <p class="text-muted">Envie um arquivo PDF do calendário escolar para visualizá-lo aqui</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

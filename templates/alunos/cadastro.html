@@ -1,0 +1,843 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if editando %}Editar{% else %}Cadastrar{% endif %} Aluno - SCAE10{% endblock %}
+
+{% block extra_css %}
+<style>
+    .nav-tabs .nav-link {
+        color: #2c3e50 !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        padding: 12px 20px !important;
+        border: 2px solid #dee2e6 !important;
+        border-bottom: none !important;
+        background: #f8f9fa !important;
+        margin-right: 5px !important;
+    }
+    .nav-tabs .nav-link:hover {
+        color: #0d6efd !important;
+        background: #e9ecef !important;
+    }
+    .nav-tabs .nav-link.active {
+        color: #0d6efd !important;
+        font-weight: 700 !important;
+        background: #ffffff !important;
+        border-color: #0d6efd !important;
+        border-bottom: 2px solid #ffffff !important;
+    }
+    .section-title {
+        color: #2c3e50;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 5px;
+        margin-bottom: 15px;
+        margin-top: 20px;
+        font-weight: 600;
+    }
+    .form-section {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="bi bi-person-badge"></i> 
+                {% if editando %}Editar Aluno{% else %}Cadastrar Novo Aluno{% endif %}
+            </h2>
+            <div>
+                {% if editando %}
+                <button type="button" class="btn btn-danger me-2" onclick="confirmarExclusao()">
+                    <i class="bi bi-trash"></i> Excluir Aluno
+                </button>
+                {% endif %}
+                <a href="{% if editando %}{% url 'alunos:detalhe' aluno.id %}{% else %}{% url 'alunos:lista' %}{% endif %}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <!-- Abas -->
+            <ul class="nav nav-tabs mb-4" id="alunoTabs" role="tablist" style="border-bottom: 3px solid #0d6efd;">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="dados-tab" data-bs-toggle="tab" data-bs-target="#dados" type="button" role="tab" aria-selected="true">
+                        <i class="bi bi-person-fill"></i> <strong>1. Dados do Aluno</strong>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="endereco-tab" data-bs-toggle="tab" data-bs-target="#endereco" type="button" role="tab" aria-selected="false">
+                        <i class="bi bi-geo-alt-fill"></i> <strong>2. Endereço</strong>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="transporte-tab" data-bs-toggle="tab" data-bs-target="#transporte" type="button" role="tab" aria-selected="false">
+                        <i class="bi bi-bus-front-fill"></i> <strong>3. Transporte Escolar</strong>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="transferencia-tab" data-bs-toggle="tab" data-bs-target="#transferencia" type="button" role="tab" aria-selected="false">
+                        <i class="bi bi-arrow-right-circle-fill"></i> <strong>4. Transferência</strong>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="observacoes-tab" data-bs-toggle="tab" data-bs-target="#observacoes" type="button" role="tab" aria-selected="false">
+                        <i class="bi bi-journal-text"></i> <strong>5. Observações</strong>
+                    </button>
+                </li>
+            </ul>
+            
+            <div class="alert alert-info mb-3">
+                <i class="bi bi-info-circle"></i> <strong>Como usar:</strong> Clique nas abas acima (1, 2, 3, 4, 5) para visualizar os diferentes grupos de campos do aluno.
+            </div>
+
+            <!-- Conteúdo das Abas -->
+            <div class="tab-content" id="alunoTabsContent">
+                
+                <!-- ABA 1: DADOS DO ALUNO -->
+                <div class="tab-pane fade show active" id="dados" role="tabpanel">
+                    <div class="row">
+                        <!-- Foto do Aluno -->
+                        <div class="col-md-12 mb-4">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0"><i class="bi bi-camera-fill"></i> FOTO DO ALUNO (3x4)</h6>
+                                </div>
+                                <div class="card-body text-center">
+                                    {% if editando and foto_url %}
+                                        <img src="{{ foto_url }}" alt="Foto do Aluno" 
+                                             style="max-width: 200px; max-height: 250px; border: 3px solid #0d6efd; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); cursor: pointer;"
+                                             onclick="abrirModalFoto('{{ foto_url }}')">
+                                        <p class="text-success mt-2"><i class="bi bi-check-circle"></i> Foto cadastrada</p>
+                                        <small class="text-muted">Clique na foto para visualizar em tela cheia</small>
+                                    {% else %}
+                                        <div class="py-4">
+                                            <i class="bi bi-person-circle" style="font-size: 120px; color: #6c757d;"></i>
+                                            <p class="text-muted mt-3">Nenhuma foto cadastrada</p>
+                                            <small class="text-muted">A foto será exibida aqui quando estiver disponível</small>
+                                        </div>
+                                    {% endif %}
+                                    <div class="mt-3">
+                                        <label class="form-label"><strong>Upload de Foto:</strong></label>
+                                        <div class="input-group mb-2">
+                                            <input type="file" name="foto" id="foto_input" class="form-control" accept="image/*">
+                                            <button class="btn btn-outline-primary" type="button" id="btn_camera" title="Tirar foto com câmera">
+                                                <i class="bi bi-camera"></i> Câmera
+                                            </button>
+                                        </div>
+                                        <!-- Input hidden para captura de câmera -->
+                                        <input type="file" id="camera_input" accept="image/*" capture="environment" style="display: none;">
+                                        <small class="text-muted d-block mt-1">📷 Formatos: JPG, PNG, GIF | Tamanho máximo: 2MB | 📱 Use a câmera para foto rápida</small>
+                                        <!-- Preview da foto selecionada (elemento separado, NÃO substitui o input) -->
+                                        <div id="fotoPreviewContainer" style="display: none; margin-top: 15px;">
+                                            <img id="fotoPreview" src="" alt="Pré-visualização da Foto" 
+                                                 style="max-width: 200px; max-height: 250px; border: 3px solid #28a745; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); cursor: pointer;">
+                                            <p class="text-success mt-2 mb-0"><i class="bi bi-check-circle"></i> <span id="fotoStatus">Foto selecionada</span></p>
+                                            <small class="text-muted">Clique na foto para visualizar em tela cheia</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Documentação Necessária -->
+                        <div class="col-md-12 mb-4">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0"><i class="bi bi-file-earmark-check"></i> DOCUMENTAÇÃO NECESSÁRIA</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="doc_foto3x4" id="doc_foto3x4" {% if aluno.doc_foto3x4 == 'S' %}checked{% endif %}>
+                                                <label class="form-check-label" for="doc_foto3x4">
+                                                    <i class="bi bi-camera"></i> Fotos 3x4
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="doc_historico" id="doc_historico" {% if aluno.doc_historico == 'S' %}checked{% endif %}>
+                                                <label class="form-check-label" for="doc_historico">
+                                                    <i class="bi bi-file-earmark-text"></i> Histórico Escolar
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="doc_certificado" id="doc_certificado" {% if aluno.doc_certificado == 'S' %}checked{% endif %}>
+                                                <label class="form-check-label" for="doc_certificado">
+                                                    <i class="bi bi-award"></i> Certificado
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="doc_rg" id="doc_rg" {% if aluno.doc_rg == 'S' %}checked{% endif %}>
+                                                <label class="form-check-label" for="doc_rg">
+                                                    <i class="bi bi-card-text"></i> RG
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="doc_cpf" id="doc_cpf" {% if aluno.doc_cpf == 'S' %}checked{% endif %}>
+                                                <label class="form-check-label" for="doc_cpf">
+                                                    <i class="bi bi-upc-scan"></i> CPF
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="doc_comprovante_residencia" id="doc_comprovante_residencia" {% if aluno.doc_comprovante_residencia == 'S' %}checked{% endif %}>
+                                                <label class="form-check-label" for="doc_comprovante_residencia">
+                                                    <i class="bi bi-house-door"></i> Comprovante de Residência
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="doc_certidao_nascimento" id="doc_certidao_nascimento" {% if aluno.doc_certidao_nascimento == 'S' %}checked{% endif %}>
+                                                <label class="form-check-label" for="doc_certidao_nascimento">
+                                                    <i class="bi bi-file-earmark-ruled"></i> Certidão de Nascimento/Casamento
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="doc_cartao_sus" id="doc_cartao_sus" {% if aluno.doc_cartao_sus == 'S' %}checked{% endif %}>
+                                                <label class="form-check-label" for="doc_cartao_sus">
+                                                    <i class="bi bi-heart-pulse"></i> Cartão do SUS
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="doc_folha_resumo" id="doc_folha_resumo" {% if aluno.doc_folha_resumo == 'S' %}checked{% endif %}>
+                                                <label class="form-check-label" for="doc_folha_resumo">
+                                                    <i class="bi bi-journal"></i> Folha Resumo
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="doc_carteira_vacina" id="doc_carteira_vacina" {% if aluno.doc_carteira_vacina == 'S' %}checked{% endif %}>
+                                                <label class="form-check-label" for="doc_carteira_vacina">
+                                                    <i class="bi bi-shield-check"></i> Carteira de Vacinação
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Dados Pessoais -->
+                        <div class="col-md-12">
+                            <h5 class="section-title"><i class="bi bi-person"></i> Dados Pessoais</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nome Completo *</label>
+                                    <input type="text" name="nome" class="form-control" value="{{ aluno.nome|default:'' }}" required>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">Data de Nascimento</label>
+                                    <input type="date" name="data_nascimento" class="form-control" value="{{ aluno.data_nascimento|date:'Y-m-d'|default:'' }}">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">Telefone</label>
+                                    <input type="text" name="telefone" class="form-control" value="{{ aluno.telefone|default:'' }}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">RG</label>
+                                    <input type="text" name="rg" class="form-control" value="{{ aluno.rg|default:'' }}">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">CPF</label>
+                                    <input type="text" name="cpf" class="form-control" value="{{ aluno.cpf|default:'' }}">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" name="email" class="form-control" value="{{ aluno.email|default:'' }}">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">NIS</label>
+                                    <input type="text" name="nis" class="form-control" value="{{ aluno.nis|default:'' }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dados Familiares -->
+                        <div class="col-md-12">
+                            <h5 class="section-title"><i class="bi bi-people"></i> Dados Familiares</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nome da Mãe</label>
+                                    <input type="text" name="nome_mae" class="form-control" value="{{ aluno.nome_mae|default:'' }}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nome do Pai</label>
+                                    <input type="text" name="nome_pai" class="form-control" value="{{ aluno.nome_pai|default:'' }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dados Complementares -->
+                        <div class="col-md-12">
+                            <h5 class="section-title"><i class="bi bi-info-circle"></i> Dados Complementares</h5>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">Nacionalidade</label>
+                                    <input type="text" name="nacionalidade" class="form-control" value="{{ aluno.nacionalidade|default:'Brasileira' }}">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">Naturalidade</label>
+                                    <input type="text" name="naturalidade" class="form-control" value="{{ aluno.naturalidade|default:'' }}">
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label">UF Naturalidade</label>
+                                    <input type="text" name="estado_naturalidade" class="form-control" value="{{ aluno.estado_naturalidade|default:'' }}" maxlength="2">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">ID INEP do Aluno</label>
+                                    <input type="text" name="id_inep" class="form-control" value="{{ aluno.id_inep|default:'' }}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">Cor/Raça</label>
+                                    <select name="cor_raca" class="form-select">
+                                        <option value="">Selecione</option>
+                                        <option value="Amarela" {% if aluno.cor_raca == 'Amarela' %}selected{% endif %}>Amarela</option>
+                                        <option value="Branca" {% if aluno.cor_raca == 'Branca' %}selected{% endif %}>Branca</option>
+                                        <option value="Indigena" {% if aluno.cor_raca == 'Indigena' %}selected{% endif %}>Indígena</option>
+                                        <option value="Nao Declarada" {% if aluno.cor_raca == 'Nao Declarada' %}selected{% endif %}>Não Declarada</option>
+                                        <option value="Parda" {% if aluno.cor_raca == 'Parda' %}selected{% endif %}>Parda</option>
+                                        <option value="Preta" {% if aluno.cor_raca == 'Preta' %}selected{% endif %}>Preta</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dados Escolares -->
+                        <div class="col-md-12">
+                            <h5 class="section-title"><i class="bi bi-book"></i> Dados Escolares</h5>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">Turma</label>
+                                    <input type="text" name="turma" class="form-control" value="{{ aluno.turma|default:'' }}">
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label">Ano Conclusão</label>
+                                    <input type="text" name="ano_conclusao" class="form-control" value="{{ aluno.ano_conclusao|default:'' }}" maxlength="4">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">Situação</label>
+                                    <select name="situacao" class="form-select">
+                                        <option value="">Selecione</option>
+                                        <option value="CONCLUINTE" {% if aluno.situacao == 'CONCLUINTE' %}selected{% endif %}>Concluinte</option>
+                                        <option value="ABANDONOU" {% if aluno.situacao == 'ABANDONOU' %}selected{% endif %}>Abandonou</option>
+                                        <option value="ESTUDANDO" {% if aluno.situacao == 'ESTUDANDO' %}selected{% endif %}>Estudando</option>
+                                        <option value="TRANSFERIDO" {% if aluno.situacao == 'TRANSFERIDO' %}selected{% endif %}>Transferido</option>
+                                        <option value="FALECIDO" {% if aluno.situacao == 'FALECIDO' %}selected{% endif %}>Falecido</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Modalidade de Ensino</label>
+                                    <select name="modalidade_ensino" class="form-select">
+                                        <option value="">Selecione</option>
+                                        <option value="Ensino Fundamental - 1ª Grau" {% if aluno.modalidade_ensino == 'Ensino Fundamental - 1ª Grau' %}selected{% endif %}>Ensino Fundamental - 1º Grau</option>
+                                        <option value="Ensino Médio Regular" {% if aluno.modalidade_ensino == 'Ensino Médio Regular' %}selected{% endif %}>Ensino Médio Regular</option>
+                                        <option value="Ensino Médio EJA" {% if aluno.modalidade_ensino == 'Ensino Médio EJA' %}selected{% endif %}>Ensino Médio EJA</option>
+                                        <option value="Ensino Médio Fluxo" {% if aluno.modalidade_ensino == 'Ensino Médio Fluxo' %}selected{% endif %}>Ensino Médio Fluxo</option>
+                                        <option value="Ensino Médio Magistério" {% if aluno.modalidade_ensino == 'Ensino Médio Magistério' %}selected{% endif %}>Ensino Médio Magistério</option>
+                                        <option value="Novo Ensino Médio Regular" {% if aluno.modalidade_ensino == 'Novo Ensino Médio Regular' %}selected{% endif %}>Novo Ensino Médio</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Resolução Autorização</label>
+                                    <select name="resolucao_autorizacao" class="form-select" id="select-resolucao">
+                                        <option value="">Selecione a modalidade primeiro</option>
+                                        {% if aluno.resolucao_autorizacao %}
+                                        <option value="{{ aluno.resolucao_autorizacao }}" selected>{{ aluno.resolucao_autorizacao }}</option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Localização da Documentação -->
+                        <div class="col-md-12">
+                            <h5 class="section-title"><i class="bi bi-folder"></i> Localização da Documentação</h5>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Corredor</label>
+                                    <select name="corredor_id" class="form-select" id="select-corredor">
+                                        <option value="">Selecione o corredor</option>
+                                        {% for corredor in corredores %}
+                                        <option value="{{ corredor.id }}" {% if aluno.corredor_id == corredor.id %}selected{% endif %}>
+                                            {{ corredor.descricao }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Estante</label>
+                                    <select name="estante_id" class="form-select" id="select-estante">
+                                        <option value="">Selecione a estante</option>
+                                        {% for estante in estantes %}
+                                        <option value="{{ estante.id }}" {% if aluno.estante_id == estante.id %}selected{% endif %}>
+                                            {{ estante.descricao }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Prateleira</label>
+                                    <select name="prateleira_id" class="form-select">
+                                        <option value="">Selecione a prateleira</option>
+                                        {% for prateleira in prateleiras %}
+                                        <option value="{{ prateleira.id }}" {% if aluno.prateleira_id == prateleira.id %}selected{% endif %}>
+                                            {{ prateleira.descricao }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ABA 2: ENDEREÇO -->
+                <div class="tab-pane fade" id="endereco" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5 class="section-title"><i class="bi bi-geo-alt"></i> Endereço Residencial</h5>
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label class="form-label">Endereço</label>
+                                    <input type="text" name="endereco" class="form-control" value="{{ aluno.endereco|default:'' }}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Bairro</label>
+                                    <input type="text" name="bairro" class="form-control" value="{{ aluno.bairro|default:'' }}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-5 mb-3">
+                                    <label class="form-label">Cidade</label>
+                                    <input type="text" name="cidade" class="form-control" value="{{ aluno.cidade|default:'' }}">
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label">Estado</label>
+                                    <select name="estado" class="form-select">
+                                        <option value="">UF</option>
+                                        {% for uf in ufs %}
+                                        <option value="{{ uf }}" {% if aluno.estado == uf %}selected{% endif %}>{{ uf }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-5 mb-3">
+                                    <label class="form-label">Zona de Residência</label>
+                                    <select name="zona_residencia" class="form-select">
+                                        <option value="">Selecione</option>
+                                        <option value="Urbana" {% if aluno.zona_residencia == 'Urbana' %}selected{% endif %}>Urbana</option>
+                                        <option value="Rural" {% if aluno.zona_residencia == 'Rural' %}selected{% endif %}>Rural</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label class="form-label">Localização Diferenciada</label>
+                                    <select name="localizacao_diferenciada" class="form-select">
+                                        <option value="">Selecione</option>
+                                        <option value="Area de assentamento" {% if aluno.localizacao_diferenciada == 'Area de assentamento' %}selected{% endif %}>Área de assentamento</option>
+                                        <option value="Terra indigena" {% if aluno.localizacao_diferenciada == 'Terra indigena' %}selected{% endif %}>Terra indígena</option>
+                                        <option value="Area de remanescentes de quilombos" {% if aluno.localizacao_diferenciada == 'Area de remanescentes de quilombos' %}selected{% endif %}>Área de remanescentes de quilombos</option>
+                                        <option value="Unidade de uso sustentavel" {% if aluno.localizacao_diferenciada == 'Unidade de uso sustentavel' %}selected{% endif %}>Unidade de uso sustentável</option>
+                                        <option value="Unidade de uso sustentavel em area indigena" {% if aluno.localizacao_diferenciada == 'Unidade de uso sustentavel em area indigena' %}selected{% endif %}>Unidade de uso sustentável em área indígena</option>
+                                        <option value="Unidade de uso sustentavel em area remanescentes de quilombos" {% if aluno.localizacao_diferenciada == 'Unidade de uso sustentavel em area remanescentes de quilombos' %}selected{% endif %}>Unidade de uso sustentável em área remanescentes de quilombos</option>
+                                        <option value="Nao se aplica" {% if aluno.localizacao_diferenciada == 'Nao se aplica' %}selected{% endif %}>Não se aplica</option>
+                                        <option value="Area onde se localizam povos e comunidades tradicionais" {% if aluno.localizacao_diferenciada == 'Area onde se localizam povos e comunidades tradicionais' %}selected{% endif %}>Área onde se localizam povos e comunidades tradicionais</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ABA 3: TRANSPORTE ESCOLAR -->
+                <div class="tab-pane fade" id="transporte" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5 class="section-title"><i class="bi bi-bus-front"></i> Transporte Escolar</h5>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Utiliza Transporte</label>
+                                    <select name="transporte_escolar" class="form-select">
+                                        <option value="N" {% if aluno.transporte_escolar == 'N' or not aluno.transporte_escolar %}selected{% endif %}>NÃO</option>
+                                        <option value="S" {% if aluno.transporte_escolar == 'S' %}selected{% endif %}>SIM</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Percurso</label>
+                                    <select name="tipo_transporte" class="form-select">
+                                        <option value="NAO_SE_APLICA" {% if aluno.tipo_transporte == 'NAO_SE_APLICA' or not aluno.tipo_transporte %}selected{% endif %}>Não se Aplica</option>
+                                        <option value="RURAL/URBANO" {% if aluno.tipo_transporte == 'RURAL/URBANO' %}selected{% endif %}>RURAL/URBANO</option>
+                                        <option value="URBANO/URBANO" {% if aluno.tipo_transporte == 'URBANO/URBANO' %}selected{% endif %}>URBANO/URBANO</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Tipo de Veículo</label>
+                                    <select name="tipo_veiculo_transporte" class="form-select">
+                                        <option value="">Selecione</option>
+                                        <option value="Rodoviario - Vans/Kombis" {% if aluno.tipo_veiculo_transporte == 'Rodoviario - Vans/Kombis' %}selected{% endif %}>Rodoviário - Vans/Kombis</option>
+                                        <option value="Rodoviario - Microonibus" {% if aluno.tipo_veiculo_transporte == 'Rodoviario - Microonibus' %}selected{% endif %}>Rodoviário - Microônibus</option>
+                                        <option value="Rodoviario - Onibus" {% if aluno.tipo_veiculo_transporte == 'Rodoviario - Onibus' %}selected{% endif %}>Rodoviário - Ônibus</option>
+                                        <option value="Rodoviario - Bicicleta" {% if aluno.tipo_veiculo_transporte == 'Rodoviario - Bicicleta' %}selected{% endif %}>Rodoviário - Bicicleta</option>
+                                        <option value="Rodoviario - Tracao Animal" {% if aluno.tipo_veiculo_transporte == 'Rodoviario - Tracao Animal' %}selected{% endif %}>Rodoviário - Tração Animal</option>
+                                        <option value="Rodoviario - Outro" {% if aluno.tipo_veiculo_transporte == 'Rodoviario - Outro' %}selected{% endif %}>Rodoviário - Outro</option>
+                                        <option value="Aquaviario - Capacidade ate 5 alunos" {% if aluno.tipo_veiculo_transporte == 'Aquaviario - Capacidade ate 5 alunos' %}selected{% endif %}>Aquaviário/Embarcação - Capacidade até 5 alunos</option>
+                                        <option value="Aquaviario - Capacidade 5 a 15 alunos" {% if aluno.tipo_veiculo_transporte == 'Aquaviario - Capacidade 5 a 15 alunos' %}selected{% endif %}>Aquaviário/Embarcação - Capacidade 5 a 15 alunos</option>
+                                        <option value="Aquaviario - Capacidade 15 a 35 alunos" {% if aluno.tipo_veiculo_transporte == 'Aquaviario - Capacidade 15 a 35 alunos' %}selected{% endif %}>Aquaviário/Embarcação - Capacidade 15 a 35 alunos</option>
+                                        <option value="Aquaviario - Capacidade acima de 35 alunos" {% if aluno.tipo_veiculo_transporte == 'Aquaviario - Capacidade acima de 35 alunos' %}selected{% endif %}>Aquaviário/Embarcação - Capacidade acima de 35 alunos</option>
+                                        <option value="Ferroviario - Trem/Metro" {% if aluno.tipo_veiculo_transporte == 'Ferroviario - Trem/Metro' %}selected{% endif %}>Ferroviário - Trem/Metrô</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ABA 4: TRANSFERÊNCIA -->
+                <div class="tab-pane fade" id="transferencia" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5 class="section-title"><i class="bi bi-arrow-right-circle"></i> Dados da Escola de Destino</h5>
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Preencha estes campos apenas para alunos transferidos.
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Escola Destino</label>
+                                    <input type="text" name="escola_destino" class="form-control" value="{{ aluno.escola_destino|default:'' }}">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">INEP Escola</label>
+                                    <input type="text" name="inep_escola_destino" class="form-control" value="{{ aluno.inep_escola_destino|default:'' }}">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">Contato</label>
+                                    <input type="text" name="contato_destino" class="form-control" value="{{ aluno.contato_destino|default:'' }}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Cidade Destino</label>
+                                    <input type="text" name="cidade_destino" class="form-control" value="{{ aluno.cidade_destino|default:'' }}">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">UF Destino</label>
+                                    <select name="uf_destino" class="form-select">
+                                        <option value="">UF</option>
+                                        {% for uf in ufs %}
+                                        <option value="{{ uf }}" {% if aluno.uf_destino == uf %}selected{% endif %}>{{ uf }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ABA 5: OBSERVAÇÕES -->
+                <div class="tab-pane fade" id="observacoes" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="section-title"><i class="bi bi-journal-text"></i> Ficha Histórica</h5>
+                            <textarea name="ficha_historica" class="form-control" rows="4">{{ aluno.ficha_historica|default:'' }}</textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <h5 class="section-title"><i class="bi bi-universal-access"></i> PCD - Aluno com Deficiência</h5>
+                            <textarea name="pdc" class="form-control" rows="4">{{ aluno.pdc|default:'' }}</textarea>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-8">
+                            <h5 class="section-title"><i class="bi bi-emoji-neutral"></i> Comportamento</h5>
+                            <textarea name="comportamento" class="form-control" rows="4">{{ aluno.comportamento|default:'' }}</textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <h5 class="section-title"><i class="bi bi-chat-text"></i> Observações Gerais</h5>
+                            <textarea name="observacoes" class="form-control" rows="4">{{ aluno.observacoes|default:'' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Botões -->
+            <div class="text-end mt-4 pt-3" style="border-top: 2px solid #dee2e6;">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="bi bi-check-circle"></i> 
+                    {% if editando %}Salvar Alterações{% else %}Cadastrar Aluno{% endif %}
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Modal para visualização da foto em tela cheia -->
+<div class="modal fade" id="fotoModal" tabindex="-1" aria-labelledby="fotoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="fotoModalLabel">Pré-visualização da Foto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="fotoPreview" src="" alt="Pré-visualização" style="max-width: 100%; max-height: 70vh; border-radius: 8px;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Fechar
+                </button>
+                <button type="button" class="btn btn-primary" id="btnUsarFoto" data-bs-dismiss="modal">
+                    <i class="bi bi-check-circle"></i> Usar Esta Foto
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript para pré-visualização da foto -->
+<script>
+    // Função global para abrir modal da foto
+    window.abrirModalFoto = function(imagemSrc) {
+        const modal = new bootstrap.Modal(document.getElementById('fotoModal'));
+        document.getElementById('fotoPreview').src = imagemSrc;
+        modal.show();
+    };
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const fotoInput = document.getElementById('foto_input');
+        const cameraInput = document.getElementById('camera_input');
+        const btnCamera = document.getElementById('btn_camera');
+        
+        // Botão de câmera
+        if (btnCamera && cameraInput) {
+            btnCamera.addEventListener('click', function() {
+                cameraInput.click();
+            });
+        }
+        
+        // Função para processar foto (usada por ambos os inputs)
+        function processarFoto(file, source) {
+            if (!file) return;
+            
+            // Validar tamanho (2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('A imagem deve ter no máximo 2MB!');
+                return false;
+            }
+            
+            // Validar tipo
+            if (!file.type.startsWith('image/')) {
+                alert('Selecione apenas arquivos de imagem!');
+                return false;
+            }
+            
+            // Pré-visualizar imagem no container separado (NÃO substitui o input!)
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewContainer = document.getElementById('fotoPreviewContainer');
+                const previewImg = document.getElementById('fotoPreview');
+                const fotoStatus = document.getElementById('fotoStatus');
+                
+                if (previewContainer && previewImg) {
+                    previewImg.src = e.target.result;
+                    previewImg.onclick = function() { abrirModalFoto(e.target.result); };
+                    fotoStatus.textContent = source === 'camera' ? '📱 Foto tirada com câmera' : '📁 Foto selecionada';
+                    previewContainer.style.display = 'block';
+                }
+            };
+            reader.readAsDataURL(file);
+            
+            console.log('[UPLOAD] Foto válida:', file.name, file.size, 'bytes');
+            return true;
+        }
+        
+        // Upload normal
+        if (fotoInput) {
+            fotoInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    if (processarFoto(file, 'upload')) {
+                        // Foto já está no input principal (não precisa copiar)
+                        console.log('[DEBUG] Foto selecionada para upload:', file.name);
+                    } else {
+                        this.value = '';
+                    }
+                }
+            });
+        }
+        
+        // Câmera
+        if (cameraInput) {
+            cameraInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    if (processarFoto(file, 'camera')) {
+                        // Copiar arquivo da câmera para o input principal
+                        const dt = new DataTransfer();
+                        dt.items.add(file);
+                        fotoInput.files = dt.files;
+                    } else {
+                        this.value = '';
+                    }
+                }
+            });
+        }
+    });
+    
+    // ========== FILTRO EM CASCATA: CORREDOR → ESTANTE → PRATELEIRA ==========
+    const selectCorredor = document.getElementById('select-corredor');
+    const selectEstante = document.getElementById('select-estante');
+    
+    // Dados das estantes e prateleiras (carregados do backend)
+    const estantesData = {{ estantes_json|safe }};
+    const prateleirasData = {{ prateleiras_json|safe }};
+    
+    console.log('[LOCALIZAÇÃO] Estantes carregadas:', estantesData.length);
+    console.log('[LOCALIZAÇÃO] Prateleiras carregadas:', prateleirasData.length);
+    console.log('[LOCALIZAÇÃO] Primeiras 3 estantes:', estantesData.slice(0, 3));
+    console.log('[LOCALIZAÇÃO] Primeiras 3 prateleiras:', prateleirasData.slice(0, 3));
+    
+    // Quando muda o corredor, filtra as estantes
+    if (selectCorredor) {
+        selectCorredor.addEventListener('change', function() {
+            const corredorId = this.value;
+            console.log('[LOCALIZAÇÃO] Corredor selecionado:', corredorId);
+            
+            // Limpar estante e prateleira
+            selectEstante.innerHTML = '<option value="">Selecione a estante</option>';
+            document.querySelector('[name="prateleira_id"]').innerHTML = '<option value="">Selecione a prateleira</option>';
+            
+            if (corredorId) {
+                // Filtrar estantes deste corredor
+                const estantesFiltradas = estantesData.filter(e => e.corredor_id == corredorId);
+                console.log('[LOCALIZAÇÃO] Estantes filtradas:', estantesFiltradas.length);
+                
+                estantesFiltradas.forEach(estante => {
+                    const option = document.createElement('option');
+                    option.value = estante.id;
+                    option.textContent = estante.descricao;
+                    selectEstante.appendChild(option);
+                });
+            }
+        });
+    }
+    
+    // Quando muda a estante, filtra as prateleiras
+    if (selectEstante) {
+        selectEstante.addEventListener('change', function() {
+            const estanteId = this.value;
+            const selectPrateleira = document.querySelector('[name="prateleira_id"]');
+            console.log('[LOCALIZAÇÃO] Estante selecionada:', estanteId);
+            
+            // Limpar prateleira
+            selectPrateleira.innerHTML = '<option value="">Selecione a prateleira</option>';
+            
+            if (estanteId) {
+                // Filtrar prateleiras desta estante
+                const prateleirasFiltradas = prateleirasData.filter(p => p.estante_id == estanteId);
+                console.log('[LOCALIZAÇÃO] Prateleiras filtradas:', prateleirasFiltradas.length);
+                
+                prateleirasFiltradas.forEach(prateleira => {
+                    const option = document.createElement('option');
+                    option.value = prateleira.id;
+                    option.textContent = prateleira.descricao;
+                    selectPrateleira.appendChild(option);
+                });
+            }
+        });
+    }
+    
+    // ========== FILTRO MODALIDADE → RESOLUÇÃO ==========
+    const selectModalidade = document.querySelector('[name="modalidade_ensino"]');
+    const selectResolucao = document.getElementById('select-resolucao');
+    
+    if (selectModalidade && selectResolucao) {
+        selectModalidade.addEventListener('change', function() {
+            const modalidade = this.value;
+            console.log('[RESOLUÇÃO] Modalidade selecionada:', modalidade);
+            
+            // Limpar select de resolução
+            selectResolucao.innerHTML = '<option value="">Carregando...</option>';
+            
+            if (!modalidade) {
+                selectResolucao.innerHTML = '<option value="">Selecione a modalidade primeiro</option>';
+                return;
+            }
+            
+            // Buscar resoluções via AJAX
+            fetch(`/alunos/api/resolucoes/?modalidade=${encodeURIComponent(modalidade)}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('[RESOLUÇÃO] Respostas da API:', data);
+                    
+                    if (data.success && data.resolucoes) {
+                        selectResolucao.innerHTML = '<option value="">Selecione a resolução</option>';
+                        
+                        data.resolucoes.forEach(resolucao => {
+                            const option = document.createElement('option');
+                            option.value = resolucao.numero_resolucao;
+                            option.textContent = resolucao.numero_resolucao + (resolucao.descricao ? ' - ' + resolucao.descricao : '');
+                            selectResolucao.appendChild(option);
+                        });
+                        
+                        console.log(`[RESOLUÇÃO] ${data.resolucoes.length} resoluções carregadas`);
+                    } else {
+                        selectResolucao.innerHTML = '<option value="">Nenhuma resolução encontrada</option>';
+                        console.error('[RESOLUÇÃO] Erro:', data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('[RESOLUÇÃO] Erro na requisição:', error);
+                    selectResolucao.innerHTML = '<option value="">Erro ao carregar resoluções</option>';
+                });
+        });
+    }
+    
+    // Função para confirmar exclusão
+    function confirmarExclusao() {
+        if (confirm('⚠️ ATENÇÃO!\n\nTem certeza que deseja excluir este aluno?\n\nEsta ação não pode ser desfeita e todos os dados serão perdidos permanentemente.')) {
+            if (confirm('⛔ CONFIRMA A EXCLUSÃO?\n\nAluno: {{ aluno.nome }}\n\nDigite OK para confirmar ou CANCELAR para abortar.')) {
+                // Redirecionar para URL de exclusão
+                window.location.href = '/alunos/{{ aluno.id }}/excluir/';
+            }
+        }
+    }
+</script>
+
+{% endblock %}

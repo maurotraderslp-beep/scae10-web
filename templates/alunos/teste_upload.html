@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste de Upload Simples</title>
+</head>
+<body>
+    <h1>Teste de Upload de Foto</h1>
+    <p>Este é um teste simples para verificar se o upload funciona.</p>
+    
+    <form method="POST" enctype="multipart/form-data" action="/alunos/4/editar/">
+        <input type="hidden" name="csrfmiddlewaretoken" value="">
+        
+        <h2>Selecione uma foto:</h2>
+        <input type="file" name="foto" id="foto_test" accept="image/*" required>
+        
+        <br><br>
+        
+        <h2>Campos obrigatórios (para não dar erro):</h2>
+        <input type="hidden" name="nome" value="ABNER SILVA DO NASCIMENTO">
+        <input type="hidden" name="transporte_escolar" value="N">
+        <input type="hidden" name="tipo_transporte" value="NAO_SE_APLICA">
+        <input type="hidden" name="cor_raca" value="Branca">
+        
+        <button type="submit">Salvar com Foto</button>
+    </form>
+    
+    <script>
+        // Pegar CSRF token do cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Adicionar CSRF token ao form
+        document.querySelector('[name=csrfmiddlewaretoken]').value = getCookie('csrftoken');
+        
+        // Debug
+        document.getElementById('foto_test').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                console.log('[TESTE] Arquivo selecionado:', file.name);
+                console.log('[TESTE] Tamanho:', file.size);
+                console.log('[TESTE] Type:', file.type);
+                alert('Arquivo selecionado: ' + file.name + '\nAgora clique em "Salvar com Foto"');
+            }
+        });
+    </script>
+</body>
+</html>

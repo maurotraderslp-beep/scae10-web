@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Estantes - SCAE10{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-bookshelf"></i> Cadastro de Estantes</h2>
+                <a href="{% url 'estantes:cadastro' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Nova Estante
+                </a>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Descrição</th>
+                                    <th>Corredor</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if estantes %}
+                                    {% for estante in estantes %}
+                                    <tr>
+                                        <td><strong>{{ estante.codigo }}</strong></td>
+                                        <td>{{ estante.descricao }}</td>
+                                        <td>
+                                            {% if estante.corredor_codigo %}
+                                                <span class="badge bg-info">{{ estante.corredor_codigo }} - {{ estante.corredor_descricao }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Sem corredor</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if estante.ativo == 'S' %}
+                                                <span class="badge bg-success">Ativo</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Inativo</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'estantes:editar' estante.id %}" class="btn btn-sm btn-warning">
+                                                <i class="bi bi-pencil"></i> Editar
+                                            </a>
+                                            <a href="{% url 'estantes:excluir' estante.id %}" 
+                                               class="btn btn-sm btn-danger"
+                                               onclick="return confirm('Tem certeza que deseja excluir esta estante?')">
+                                                <i class="bi bi-trash"></i> Excluir
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">
+                                            <i class="bi bi-info-circle"></i> Nenhuma estante cadastrada
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - SCAE10 Web{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-2 sidebar p-0">
+            <div class="pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'dashboard' %}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'alunos:lista' %}">
+                            <i class="bi bi-people"></i> Alunos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'corredores:lista' %}">
+                            <i class="bi bi-building"></i> Corredores
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'estantes:lista' %}">
+                            <i class="bi bi-bookshelf"></i> Estantes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'prateleiras:lista' %}">
+                            <i class="bi bi-grid-3x3"></i> Prateleiras
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'equipamentos:lista' %}">
+                            <i class="bi bi-tools"></i> Equipamentos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'calendarios:calendario' %}">
+                            <i class="bi bi-calendar-event"></i> Calendário
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'solicitacoes:lista' %}">
+                            <i class="bi bi-envelope-paper"></i> Solicitações
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-person-badge"></i> Professores
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-file-earmark-text"></i> Documentos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-graph-up"></i> Relatórios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-gear"></i> Configurações
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-10 main-content">
+            <div class="page-header">
+                <h2><i class="bi bi-speedometer2"></i> Dashboard</h2>
+                <p class="text-muted">Visão geral do sistema</p>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <h3>{{ total_alunos }}</h3>
+                        <p><i class="bi bi-people"></i> Alunos Ativos</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <h3>{{ total_professores }}</h3>
+                        <p><i class="bi bi-person-badge"></i> Professores</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <h3>0</h3>
+                        <p><i class="bi bi-file-earmark-text"></i> Documentos Gerados</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <h4 class="mb-3">Ações Rápidas</h4>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="bi bi-people display-4 text-primary mb-3"></i>
+                            <h5 class="card-title">Alunos</h5>
+                            <p class="card-text text-muted">Gerenciar cadastros</p>
+                            <a href="{% url 'alunos:lista' %}" class="btn btn-primary">
+                                <i class="bi bi-arrow-right"></i> Acessar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="bi bi-person-badge display-4 text-success mb-3"></i>
+                            <h5 class="card-title">Professores</h5>
+                            <p class="card-text text-muted">Cadastro e lotação</p>
+                            <a href="#" class="btn btn-success">
+                                <i class="bi bi-arrow-right"></i> Acessar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="bi bi-building display-4 text-secondary mb-3"></i>
+                            <h5 class="card-title">Corredores</h5>
+                            <p class="card-text text-muted">Localização física</p>
+                            <a href="{% url 'corredores:lista' %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-right"></i> Acessar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="bi bi-file-earmark-text display-4 text-info mb-3"></i>
+                            <h5 class="card-title">Documentos</h5>
+                            <p class="card-text text-muted">Certificados e históricos</p>
+                            <a href="#" class="btn btn-info">
+                                <i class="bi bi-arrow-right"></i> Acessar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="bi bi-graph-up display-4 text-warning mb-3"></i>
+                            <h5 class="card-title">Relatórios</h5>
+                            <p class="card-text text-muted">Relatórios diversos</p>
+                            <a href="#" class="btn btn-warning">
+                                <i class="bi bi-arrow-right"></i> Acessar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Info -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> 
+                        <strong>Sistema em Desenvolvimento:</strong> 
+                        Esta é uma versão inicial para testes. Mais funcionalidades serão adicionadas gradualmente.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

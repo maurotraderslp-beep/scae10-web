@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Corredores - SCAE10{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-building"></i> Cadastro de Corredores</h2>
+                <a href="{% url 'corredores:cadastro' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Novo Corredor
+                </a>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Descrição</th>
+                                    <th>Status</th>
+                                    <th>Data Cadastro</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if corredores %}
+                                    {% for corredor in corredores %}
+                                    <tr>
+                                        <td><strong>{{ corredor.codigo }}</strong></td>
+                                        <td>{{ corredor.descricao }}</td>
+                                        <td>
+                                            {% if corredor.ativo == 'S' %}
+                                                <span class="badge bg-success">Ativo</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Inativo</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ corredor.data_cadastro|date:"d/m/Y H:i" }}</td>
+                                        <td>
+                                            <a href="{% url 'corredores:editar' corredor.id %}" class="btn btn-sm btn-warning">
+                                                <i class="bi bi-pencil"></i> Editar
+                                            </a>
+                                            <a href="{% url 'corredores:excluir' corredor.id %}" 
+                                               class="btn btn-sm btn-danger"
+                                               onclick="return confirm('Tem certeza que deseja excluir este corredor?')">
+                                                <i class="bi bi-trash"></i> Excluir
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">
+                                            <i class="bi bi-info-circle"></i> Nenhum corredor cadastrado
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

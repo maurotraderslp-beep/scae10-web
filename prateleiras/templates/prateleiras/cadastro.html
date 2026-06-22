@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if prateleira.id %}Editar{% else %}Nova{% endif %} Prateleira - SCAE10{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="bi bi-grid-3x3"></i> 
+                    {% if prateleira.id %}Editar Prateleira{% else %}Nova Prateleira{% endif %}
+                </h2>
+                <a href="{% url 'prateleiras:lista' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Voltar
+                </a>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Imagem da Prateleira -->
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="card border-primary">
+                                    <div class="card-header bg-primary text-white">
+                                        <h6 class="mb-0"><i class="bi bi-camera-fill"></i> IMAGEM DA PRATELEIRA</h6>
+                                    </div>
+                                    <div class="card-body text-center">
+                                        {% if prateleira.id and prateleira.foto_path %}
+                                            <img src="/media/{{ prateleira.foto_path }}" alt="Foto da Prateleira" 
+                                                 style="max-width: 300px; max-height: 200px; border: 3px solid #0d6efd; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); cursor: pointer;"
+                                                 onclick="abrirModalFoto('/media/{{ prateleira.foto_path }}')">
+                                            <p class="text-success mt-2"><i class="bi bi-check-circle"></i> Imagem cadastrada</p>
+                                        {% else %}
+                                            <div class="py-4">
+                                                <i class="bi bi-image" style="font-size: 100px; color: #6c757d;"></i>
+                                                <p class="text-muted mt-3">Nenhuma imagem cadastrada</p>
+                                            </div>
+                                        {% endif %}
+                                        <div class="mt-3">
+                                            <label class="form-label"><strong>Upload de Imagem:</strong></label>
+                                            <input type="file" name="foto" id="foto_input" class="form-control" accept="image/*">
+                                            <small class="text-muted d-block mt-1">📷 Formatos: JPG, PNG, GIF | Tamanho máximo: 2MB</small>
+                                            <div id="fotoPreviewContainer" style="display: none; margin-top: 15px;">
+                                                <img id="fotoPreview" src="" alt="Pré-visualização" 
+                                                     style="max-width: 300px; max-height: 200px; border: 3px solid #28a745; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); cursor: pointer;">
+                                                <p class="text-success mt-2 mb-0"><i class="bi bi-check-circle"></i> Imagem selecionada</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Código -->
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Código <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       name="codigo" 
+                                       class="form-control" 
+                                       value="{{ prateleira.codigo|default:'' }}"
+                                       required
+                                       placeholder="Ex: A-01-01, B-02-03...">
+                                <small class="text-muted">Código único da prateleira</small>
+                            </div>
+
+                            <!-- Estante -->
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Estante <span class="text-danger">*</span></label>
+                                <select name="estante_id" class="form-select" required>
+                                    <option value="">Selecione uma estante</option>
+                                    {% for estante in estantes %}
+                                        {% if estante.ativo == 'S' %}
+                                            <option value="{{ estante.id }}" 
+                                                    {% if prateleira.estante_id == estante.id %}selected{% endif %}>
+                                                {{ estante.codigo }} - {{ estante.descricao }}
+                                                {% if estante.corredor_codigo %}
+                                                    (Corredor: {{ estante.corredor_codigo }})
+                                                {% endif %}
+                                            </option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <small class="text-muted">Estante onde a prateleira está localizada</small>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Status</label>
+                                <select name="ativo" class="form-select">
+                                    <option value="S" {% if prateleira.ativo == 'S' or not prateleira.id %}selected{% endif %}>Ativo</option>
+                                    <option value="N" {% if prateleira.ativo == 'N' %}selected{% endif %}>Inativo</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Descrição -->
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Descrição <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       name="descricao" 
+                                       class="form-control" 
+                                       value="{{ prateleira.descricao|default:'' }}"
+                                       required
+                                       placeholder="Ex: Prateleira Superior - Turmas A">
+                                <small class="text-muted">Descrição completa da prateleira</small>
+                            </div>
+                        </div>
+
+                        <!-- Foto Path (opcional) -->
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Caminho da Foto</label>
+                                <input type="text" 
+                                       name="foto_path" 
+                                       class="form-control" 
+                                       value="{{ prateleira.foto_path|default:'' }}"
+                                       placeholder="Caminho da imagem (opcional)">
+                            </div>
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Salvar
+                            </button>
+                            <a href="{% url 'prateleiras:lista' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalFoto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Visualização da Imagem</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalFotoImg" src="" alt="Imagem em tela cheia" 
+                     style="max-width: 100%; max-height: 80vh; object-fit: contain;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('foto_input')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('fotoPreview').src = e.target.result;
+            document.getElementById('fotoPreviewContainer').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+function abrirModalFoto(url) {
+    document.getElementById('modalFotoImg').src = url;
+    const modal = new bootstrap.Modal(document.getElementById('modalFoto'));
+    modal.show();
+}
+</script>
+
+{% endblock %}

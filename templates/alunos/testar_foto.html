@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste de Foto</title>
+</head>
+<body>
+    <h1>Teste de Foto - Aluno ID 1</h1>
+    
+    <h2>1. Foto via URL Django (media):</h2>
+    <p>Se a foto aparecer abaixo, o Django está servindo corretamente:</p>
+    <img src="/media/Fotos/foto_teste_aluno.png" alt="Foto do Aluno" 
+         style="max-width: 300px; border: 3px solid red;">
+    
+    <h2>2. Informações:</h2>
+    <ul>
+        <li>URL da foto: /media/Fotos/foto_teste_aluno.png</li>
+        <li>Path no servidor: C:\sysflor\scae10-web\backend\media\Fotos\foto_teste_aluno.png</li>
+    </ul>
+    
+    <h2>3. Teste com URL completa:</h2>
+    <p>Se a foto aparecer abaixo, o caminho está correto:</p>
+    <img src="http://127.0.0.1:8000/media/Fotos/foto_teste_aluno.png" alt="Foto URL completa"
+         style="max-width: 300px; border: 3px solid blue;">
+    
+    <h2>4. Se NENHUMA foto apareceu acima:</h2>
+    <ul>
+        <li>Verifique se o servidor Django está rodando</li>
+        <li>Verifique se DEBUG = True no settings.py</li>
+        <li>Verifique se o arquivo existe: C:\sysflor\scae10-web\backend\media\Fotos\foto_teste_aluno.png</li>
+    </ul>
+</body>
+</html>

@@ -1,0 +1,431 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes do Aluno - SCAE10{% endblock %}
+
+{% block extra_css %}
+<style>
+    .nav-tabs .nav-link {
+        color: #2c3e50 !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        padding: 12px 20px !important;
+        border: 2px solid #dee2e6 !important;
+        border-bottom: none !important;
+        background: #f8f9fa !important;
+        margin-right: 5px !important;
+    }
+    .nav-tabs .nav-link:hover {
+        color: #0d6efd !important;
+        background: #e9ecef !important;
+    }
+    .nav-tabs .nav-link.active {
+        color: #0d6efd !important;
+        font-weight: 700 !important;
+        background: #ffffff !important;
+        border-color: #0d6efd !important;
+        border-bottom: 2px solid #ffffff !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-person-badge"></i> Detalhes do Aluno</h2>
+            <div>
+                <a href="{% url 'alunos:editar' aluno.id %}" class="btn btn-warning">
+                    <i class="bi bi-pencil"></i> Editar
+                </a>
+                <a href="{% url 'alunos:lista' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Abas -->
+<ul class="nav nav-tabs mb-3" id="detalheTabs" role="tablist" style="border-bottom: 3px solid #0d6efd;">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="dados-tab" data-bs-toggle="tab" data-bs-target="#dados" type="button" aria-selected="true">
+            <i class="bi bi-person-fill"></i> <strong>1. Dados do Aluno</strong>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="endereco-tab" data-bs-toggle="tab" data-bs-target="#endereco" type="button" aria-selected="false">
+            <i class="bi bi-geo-alt-fill"></i> <strong>2. Endereço</strong>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="transporte-tab" data-bs-toggle="tab" data-bs-target="#transporte" type="button" aria-selected="false">
+            <i class="bi bi-bus-front-fill"></i> <strong>3. Transporte Escolar</strong>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="transferencia-tab" data-bs-toggle="tab" data-bs-target="#transferencia" type="button" aria-selected="false">
+            <i class="bi bi-arrow-right-circle-fill"></i> <strong>4. Transferência</strong>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="observacoes-tab" data-bs-toggle="tab" data-bs-target="#observacoes" type="button" aria-selected="false">
+            <i class="bi bi-journal-text"></i> <strong>5. Observações</strong>
+        </button>
+    </li>
+</ul>
+
+<div class="alert alert-info mb-3">
+    <i class="bi bi-info-circle"></i> <strong>Como usar:</strong> Clique nas abas acima (1, 2, 3, 4, 5) para visualizar os diferentes grupos de informações do aluno.
+</div>
+
+<div class="tab-content" id="detalheTabsContent">
+    
+    <!-- ABA 1: DADOS DO ALUNO -->
+    <div class="tab-pane fade show active" id="dados" role="tabpanel">
+        <div class="row">
+            <!-- Foto do Aluno -->
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="bi bi-camera"></i> Foto do Aluno</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        {% if foto_url %}
+                            <img src="{{ foto_url }}" alt="Foto do Aluno" 
+                                 style="max-width: 100%; max-height: 300px; border: 2px solid #dee2e6; border-radius: 5px;">
+                        {% else %}
+                            <div class="py-5">
+                                <i class="bi bi-person-circle" style="font-size: 150px; color: #6c757d;"></i>
+                                <p class="text-muted mt-3">Nenhuma foto cadastrada</p>
+                                <small class="text-muted">A foto será exibida aqui quando estiver disponível</small>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Documentação Necessária -->
+            <div class="col-md-12 mb-3">
+                <div class="card shadow-sm border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0"><i class="bi bi-file-earmark-check"></i> DOCUMENTAÇÃO NECESSÁRIA</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="doc_foto3x4" {% if aluno.doc_foto3x4 == 'S' %}checked{% endif %} disabled>
+                                    <label class="form-check-label" for="doc_foto3x4">
+                                        <i class="bi bi-camera"></i> Fotos 3x4
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="doc_historico" {% if aluno.doc_historico == 'S' %}checked{% endif %} disabled>
+                                    <label class="form-check-label" for="doc_historico">
+                                        <i class="bi bi-file-earmark-text"></i> Histórico Escolar
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="doc_certificado" {% if aluno.doc_certificado == 'S' %}checked{% endif %} disabled>
+                                    <label class="form-check-label" for="doc_certificado">
+                                        <i class="bi bi-award"></i> Certificado
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="doc_rg" {% if aluno.doc_rg == 'S' %}checked{% endif %} disabled>
+                                    <label class="form-check-label" for="doc_rg">
+                                        <i class="bi bi-card-text"></i> RG
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="doc_cpf" {% if aluno.doc_cpf == 'S' %}checked{% endif %} disabled>
+                                    <label class="form-check-label" for="doc_cpf">
+                                        <i class="bi bi-upc-scan"></i> CPF
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="doc_comprovante_residencia" {% if aluno.doc_comprovante_residencia == 'S' %}checked{% endif %} disabled>
+                                    <label class="form-check-label" for="doc_comprovante_residencia">
+                                        <i class="bi bi-house-door"></i> Comprovante de Residência
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="doc_certidao_nascimento" {% if aluno.doc_certidao_nascimento == 'S' %}checked{% endif %} disabled>
+                                    <label class="form-check-label" for="doc_certidao_nascimento">
+                                        <i class="bi bi-file-earmark-ruled"></i> Certidão de Nascimento/Casamento
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="doc_cartao_sus" {% if aluno.doc_cartao_sus == 'S' %}checked{% endif %} disabled>
+                                    <label class="form-check-label" for="doc_cartao_sus">
+                                        <i class="bi bi-heart-pulse"></i> Cartão do SUS
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="doc_folha_resumo" {% if aluno.doc_folha_resumo == 'S' %}checked{% endif %} disabled>
+                                    <label class="form-check-label" for="doc_folha_resumo">
+                                        <i class="bi bi-journal"></i> Folha Resumo
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="doc_carteira_vacina" {% if aluno.doc_carteira_vacina == 'S' %}checked{% endif %} disabled>
+                                    <label class="form-check-label" for="doc_carteira_vacina">
+                                        <i class="bi bi-shield-check"></i> Carteira de Vacinação
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dados Pessoais -->
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-3">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0"><i class="bi bi-person"></i> Dados Pessoais</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless mb-0">
+                            <tr><th width="40%">Nome:</th><td>{{ aluno.nome|default:"-" }}</td></tr>
+                            <tr><th>Data Nascimento:</th><td>{% if aluno.data_nascimento %}{{ aluno.data_nascimento|date:"d/m/Y" }} ({{ aluno.idade|default:"" }} anos){% else %}-{% endif %}</td></tr>
+                            <tr><th>Telefone:</th><td>{{ aluno.telefone|default:"-" }}</td></tr>
+                            <tr><th>Email:</th><td>{{ aluno.email|default:"-" }}</td></tr>
+                            <tr><th>RG:</th><td>{{ aluno.rg|default:"-" }}</td></tr>
+                            <tr><th>CPF:</th><td>{{ aluno.cpf|default:"-" }}</td></tr>
+                            <tr><th>NIS:</th><td>{{ aluno.nis|default:"-" }}</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dados Complementares -->
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-3">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0"><i class="bi bi-info-circle"></i> Dados Complementares</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless mb-0">
+                            <tr><th width="40%">Nacionalidade:</th><td>{{ aluno.nacionalidade|default:"-" }}</td></tr>
+                            <tr><th>Naturalidade:</th><td>{% if aluno.naturalidade or aluno.estado_naturalidade %}{{ aluno.naturalidade|default:"" }}{% if aluno.naturalidade and aluno.estado_naturalidade %} - {% endif %}{{ aluno.estado_naturalidade|default:"" }}{% else %}-{% endif %}</td></tr>
+                            <tr><th>ID INEP:</th><td>{{ aluno.id_inep|default:"-" }}</td></tr>
+                            <tr><th>Cor/Raça:</th><td><span class="badge bg-info">{{ aluno.cor_raca|default:"-" }}</span></td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Dados Familiares -->
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-3">
+                    <div class="card-header bg-warning">
+                        <h6 class="mb-0"><i class="bi bi-people"></i> Dados Familiares</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless mb-0">
+                            <tr><th width="40%">Nome da Mãe:</th><td>{{ aluno.nome_mae|default:"-" }}</td></tr>
+                            <tr><th>Nome do Pai:</th><td>{{ aluno.nome_pai|default:"-" }}</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dados Escolares -->
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-3">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="bi bi-book"></i> Dados Escolares</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless mb-0">
+                            <tr><th width="40%">Turma:</th><td><span class="badge bg-primary">{{ aluno.turma|default:"Não informada" }}</span></td></tr>
+                            <tr><th>Ano Conclusão:</th><td>{{ aluno.ano_conclusao|default:"-" }}</td></tr>
+                            <tr><th>Situação:</th><td>
+                                {% if aluno.situacao == 'ATIVO' or aluno.situacao == 'ESTUDANDO' %}
+                                    <span class="badge bg-success">{{ aluno.situacao }}</span>
+                                {% elif aluno.situacao == 'TRANSFERIDO' %}
+                                    <span class="badge bg-warning">Transferido</span>
+                                {% elif aluno.situacao == 'CONCLUINTE' or aluno.situacao == 'CONCLUIDO' %}
+                                    <span class="badge bg-info">Concluinte</span>
+                                {% elif aluno.situacao == 'ABANDONOU' %}
+                                    <span class="badge bg-danger">Abandonou</span>
+                                {% elif aluno.situacao == 'FALECIDO' %}
+                                    <span class="badge bg-dark">Falecido</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ aluno.situacao|default:"Não informada" }}</span>
+                                {% endif %}
+                            </td></tr>
+                            <tr><th>Modalidade:</th><td>{{ aluno.modalidade_ensino|default:"-" }}</td></tr>
+                            <tr><th>Resolução:</th><td>{{ aluno.resolucao_autorizacao|default:"-" }}</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Localização Documentação -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card shadow-sm mb-3">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0"><i class="bi bi-folder"></i> Localização da Documentação</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4"><strong>Corredor:</strong> {{ aluno.corredor_descricao|default:"-" }}</div>
+                            <div class="col-md-4"><strong>Estante:</strong> {{ aluno.estante_descricao|default:"-" }}</div>
+                            <div class="col-md-4"><strong>Prateleira:</strong> {{ aluno.prateleira_descricao|default:"-" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ABA 2: ENDEREÇO -->
+    <div class="tab-pane fade" id="endereco" role="tabpanel">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="bi bi-geo-alt"></i> Endereço Residencial</h6>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-8"><strong>Endereço:</strong> {{ aluno.endereco|default:"-" }}</div>
+                    <div class="col-md-4"><strong>Bairro:</strong> {{ aluno.bairro|default:"-" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-5"><strong>Cidade:</strong> {{ aluno.cidade|default:"-" }}</div>
+                    <div class="col-md-2"><strong>Estado:</strong> {{ aluno.estado|default:"-" }}</div>
+                    <div class="col-md-5"><strong>Zona de Residência:</strong> {{ aluno.zona_residencia|default:"-" }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12"><strong>Localização Diferenciada:</strong> {{ aluno.localizacao_diferenciada|default:"-" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ABA 3: TRANSPORTE -->
+    <div class="tab-pane fade" id="transporte" role="tabpanel">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h6 class="mb-0"><i class="bi bi-bus-front"></i> Transporte Escolar</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4"><strong>Utiliza Transporte:</strong> 
+                        {% if aluno.transporte_escolar == 'SIM' %}
+                            <span class="badge bg-success">SIM</span>
+                        {% else %}
+                            <span class="badge bg-danger">NÃO</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4"><strong>Percurso:</strong> {{ aluno.tipo_transporte|default:"-" }}</div>
+                    <div class="col-md-4"><strong>Tipo de Veículo:</strong> {{ aluno.tipo_veiculo_transporte|default:"-" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ABA 4: TRANSFERÊNCIA -->
+    <div class="tab-pane fade" id="transferencia" role="tabpanel">
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning">
+                <h6 class="mb-0"><i class="bi bi-arrow-right-circle"></i> Dados da Escola de Destino</h6>
+            </div>
+            <div class="card-body">
+                {% if aluno.situacao == 'TRANSFERIDO' %}
+                    <div class="row mb-3">
+                        <div class="col-md-6"><strong>Escola Destino:</strong> {{ aluno.escola_destino|default:"-" }}</div>
+                        <div class="col-md-3"><strong>INEP Escola:</strong> {{ aluno.inep_escola_destino|default:"-" }}</div>
+                        <div class="col-md-3"><strong>Contato:</strong> {{ aluno.contato_destino|default:"-" }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6"><strong>Cidade Destino:</strong> {{ aluno.cidade_destino|default:"-" }}</div>
+                        <div class="col-md-3"><strong>UF Destino:</strong> {{ aluno.uf_destino|default:"-" }}</div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> Aluno não está transferido. Estes campos não se aplicam.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ABA 5: OBSERVAÇÕES -->
+    <div class="tab-pane fade" id="observacoes" role="tabpanel">
+        <div class="row">
+            <div class="col-md-8 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="bi bi-journal-text"></i> Ficha Histórica</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">{{ aluno.ficha_historica|default:"Nenhuma informação registrada."|linebreaks }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-warning">
+                        <h6 class="mb-0"><i class="bi bi-universal-access"></i> PCD - Deficiência</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">{{ aluno.pdc|default:"Nenhuma informação registrada."|linebreaks }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0"><i class="bi bi-emoji-neutral"></i> Comportamento</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">{{ aluno.comportamento|default:"Nenhuma informação registrada."|linebreaks }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white">
+                        <h6 class="mb-0"><i class="bi bi-chat-text"></i> Observações Gerais</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0">{{ aluno.observacoes_gerais|default:"Nenhuma observação registrada."|linebreaks }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,1 @@
+web: gunicorn scae10.wsgi --log-file -

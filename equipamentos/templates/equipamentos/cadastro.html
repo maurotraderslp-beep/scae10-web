@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if editando %}Editar{% else %}Cadastrar{% endif %} Equipamento - SCAE10{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="bi bi-tools"></i> 
+                {% if editando %}Editar Equipamento{% else %}Cadastrar Novo Equipamento{% endif %}
+            </h2>
+            <a href="{% url 'equipamentos:lista' %}" class="btn btn-secondary">
+                <i class="bi bi-x-circle"></i> Cancelar
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="row">
+                <!-- Código -->
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Código <span class="text-danger">*</span></label>
+                    <input type="text" 
+                           name="codigo" 
+                           class="form-control" 
+                           value="{{ equipamento.codigo|default:'' }}"
+                           placeholder="Ex: DS001, EQ002"
+                           required
+                           maxlength="20">
+                    <small class="text-muted">Código único do equipamento</small>
+                </div>
+                
+                <!-- Status -->
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Status</label>
+                    <select name="ativo" class="form-select">
+                        <option value="S" {% if equipamento.ativo == 'S' or not equipamento.ativo %}selected{% endif %}>
+                            Ativo
+                        </option>
+                        <option value="N" {% if equipamento.ativo == 'N' %}selected{% endif %}>
+                            Inativo
+                        </option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Descrição -->
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Descrição <span class="text-danger">*</span></label>
+                    <input type="text" 
+                           name="descricao" 
+                           class="form-control" 
+                           value="{{ equipamento.descricao|default:'' }}"
+                           placeholder="Ex: PROJETOR EPSON POWERLITE, NOTEBOOK DELL"
+                           required
+                           maxlength="200">
+                    <small class="text-muted">Descrição detalhada do equipamento</small>
+                </div>
+            </div>
+            
+            <!-- Localização -->
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Localização</label>
+                    <input type="text" 
+                           name="localizacao" 
+                           class="form-control" 
+                           value="{{ equipamento.localizacao|default:'' }}"
+                           placeholder="Ex: AUDITORIO PRINCIPAL, SALA DE REUNIOES"
+                           maxlength="200">
+                    <small class="text-muted">Local onde o equipamento está instalado</small>
+                </div>
+            </div>
+            
+            <!-- Botões -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> 
+                        {% if editando %}Atualizar{% else %}Cadastrar{% endif %}
+                    </button>
+                    <a href="{% url 'equipamentos:lista' %}" class="btn btn-secondary ms-2">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if editando %}
+<div class="alert alert-info mt-3">
+    <i class="bi bi-info-circle"></i> 
+    <strong>Informação:</strong> Equipamento cadastrado em {{ equipamento.data_cadastro|default:"data não disponível" }}
+</div>
+{% endif %}
+{% endblock %}

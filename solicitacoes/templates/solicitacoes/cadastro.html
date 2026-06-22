@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if editando %}Editar{% else %}Nova{% endif %} Solicitação - SCAE10{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="bi bi-envelope-paper"></i> 
+                {% if editando %}Editar Solicitação{% else %}Nova Solicitação{% endif %}
+            </h2>
+            <a href="{% url 'solicitacoes:lista' %}" class="btn btn-secondary">
+                <i class="bi bi-x-circle"></i> Cancelar
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="row">
+                <!-- Aluno -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Aluno <span class="text-danger">*</span></label>
+                    <select name="aluno_id" class="form-select" required>
+                        <option value="">Selecione um aluno</option>
+                        {% for aluno in alunos %}
+                            <option value="{{ aluno.id }}" 
+                                    {% if solicitacao.aluno_id == aluno.id %}selected{% endif %}>
+                                {{ aluno.nome }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Tipo de Documento -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Tipo de Documento <span class="text-danger">*</span></label>
+                    <select name="tipo_documento_id" class="form-select" required>
+                        <option value="">Selecione um tipo</option>
+                        {% for tipo in tipos %}
+                            <option value="{{ tipo.id }}" 
+                                    {% if solicitacao.tipo_documento_id == tipo.id %}selected{% endif %}>
+                                {{ tipo.descricao }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="row">
+                <!-- Funcionário/Atendente -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Atendente <span class="text-danger">*</span></label>
+                    <select name="funcionario_id" class="form-select" required>
+                        <option value="">Selecione um atendente</option>
+                        {% for func in funcionarios %}
+                            <option value="{{ func.id }}" 
+                                    {% if solicitacao.funcionario_id == func.id %}selected{% endif %}>
+                                {{ func.nome }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Status -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="PENDENTE" {% if solicitacao.status == 'PENDENTE' or not solicitacao.status %}selected{% endif %}>
+                            Pendente
+                        </option>
+                        <option value="EM_ANDAMENTO" {% if solicitacao.status == 'EM_ANDAMENTO' %}selected{% endif %}>
+                            Em Andamento
+                        </option>
+                        <option value="CONCLUIDO" {% if solicitacao.status == 'CONCLUIDO' %}selected{% endif %}>
+                            Concluído
+                        </option>
+                        <option value="CANCELADO" {% if solicitacao.status == 'CANCELADO' %}selected{% endif %}>
+                            Cancelado
+                        </option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Justificativa -->
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Justificativa</label>
+                    <textarea name="justificativa" class="form-control" rows="3"
+                              placeholder="Motivo da solicitação...">{{ solicitacao.justificativa|default:'' }}</textarea>
+                </div>
+            </div>
+            
+            <hr class="my-4">
+            <h5 class="mb-3"><i class="bi bi-file-earmark-text"></i> Dados do Certificado</h5>
+            
+            <!-- Dados do Certificado -->
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Número</label>
+                    <input type="text" name="certificado_numero" class="form-control" 
+                           value="{{ solicitacao.certificado_numero|default:'' }}" placeholder="000">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Folha</label>
+                    <input type="text" name="certificado_folha" class="form-control" 
+                           value="{{ solicitacao.certificado_folha|default:'' }}" placeholder="000">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Livro</label>
+                    <input type="text" name="certificado_livro" class="form-control" 
+                           value="{{ solicitacao.certificado_livro|default:'' }}" placeholder="000">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Via</label>
+                    <select name="certificado_via" class="form-select">
+                        <option value="1" {% if solicitacao.certificado_via == 1 %}selected{% endif %}>1ª Via</option>
+                        <option value="2" {% if solicitacao.certificado_via == 2 %}selected{% endif %}>2ª Via</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Data Emissão</label>
+                    <input type="date" name="data_emissao" class="form-control" 
+                           value="{{ solicitacao.data_emissao|date:'Y-m-d'|default:'' }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Secretário(a)</label>
+                    <input type="text" name="secretario_nome" class="form-control" 
+                           value="{{ solicitacao.secretario_nome|default:'' }}" placeholder="Nome do secretário">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Diretor(a)</label>
+                    <input type="text" name="diretor_nome" class="form-control" 
+                           value="{{ solicitacao.diretor_nome|default:'' }}" placeholder="Nome do diretor">
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Município</label>
+                    <input type="text" name="municipio" class="form-control" 
+                           value="{{ solicitacao.municipio|default:'' }}" placeholder="Cidade/UF">
+                </div>
+            </div>
+            
+            <hr class="my-4">
+            <h5 class="mb-3"><i class="bi bi-chat-left-text"></i> Observações</h5>
+            
+            <!-- Observações -->
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Observações</label>
+                    <textarea name="observacoes" class="form-control" rows="3"
+                              placeholder="Informações adicionais...">{{ solicitacao.observacoes|default:'' }}</textarea>
+                </div>
+            </div>
+            
+            {% if editando %}
+            <hr class="my-4">
+            <h5 class="mb-3"><i class="bi bi-box-seam"></i> Dados de Entrega</h5>
+            
+            <!-- Campos de entrega (só na edição) -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Data de Entrega</label>
+                    <input type="date" name="data_entrega" class="form-control" 
+                           value="{{ solicitacao.data_entrega|date:'Y-m-d'|default:'' }}">
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Quem Buscou</label>
+                    <input type="text" name="quem_buscou" class="form-control" 
+                           value="{{ solicitacao.quem_buscou|default:'' }}"
+                           placeholder="Nome de quem retirou o documento">
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Botões -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> 
+                        {% if editando %}Atualizar{% else %}Cadastrar{% endif %}
+                    </button>
+                    <a href="{% url 'solicitacoes:lista' %}" class="btn btn-secondary ms-2">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

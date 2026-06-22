@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - SCAE10 Web{% endblock %}
+
+{% block content %}
+<style>
+    .login-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+        padding: 2rem;
+    }
+    
+    .login-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        padding: 3rem;
+        max-width: 450px;
+        width: 100%;
+    }
+    
+    .login-logo {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .login-logo i {
+        font-size: 4rem;
+        color: #1e3a5f;
+    }
+    
+    .login-logo h1 {
+        color: #1e3a5f;
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 1rem 0 0.5rem;
+    }
+    
+    .login-logo p {
+        color: #718096;
+        font-size: 0.9rem;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        color: #4a5568;
+    }
+    
+    .form-control {
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+        padding: 0.75rem 1rem;
+    }
+    
+    .form-control:focus {
+        border-color: #3182ce;
+        box-shadow: 0 0 0 3px rgba(49,130,206,0.1);
+    }
+    
+    .btn-login {
+        background: linear-gradient(135deg, #1e3a5f, #2c5282);
+        border: none;
+        padding: 0.75rem;
+        font-weight: 600;
+        border-radius: 6px;
+        width: 100%;
+        color: white;
+        transition: transform 0.2s;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        color: white;
+    }
+    
+    .alert {
+        border-radius: 6px;
+    }
+    
+    .btn-close-login {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(0,0,0,0.1);
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #718096;
+        font-size: 1.2rem;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .btn-close-login:hover {
+        background: #e53e3e;
+        color: white;
+        transform: rotate(90deg);
+    }
+    
+    .login-card {
+        position: relative;
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        <!-- Botão Fechar -->
+        <button type="button" class="btn-close-login" onclick="window.close()" title="Fechar">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        
+        <div class="login-logo">
+            <i class="bi bi-book"></i>
+            <h1>SCAE10 Web</h1>
+            <p>Sistema de Controle de Arquivo Escolar</p>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle"></i> {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            
+            <div class="mb-3">
+                <label for="username" class="form-label">
+                    <i class="bi bi-person"></i> Usuário
+                </label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    id="username" 
+                    name="username" 
+                    placeholder="Digite seu usuário"
+                    required
+                    autofocus
+                >
+            </div>
+            
+            <div class="mb-4">
+                <label for="password" class="form-label">
+                    <i class="bi bi-lock"></i> Senha
+                </label>
+                <input 
+                    type="password" 
+                    class="form-control" 
+                    id="password" 
+                    name="password" 
+                    placeholder="Digite sua senha"
+                    required
+                >
+            </div>
+            
+            <button type="submit" class="btn btn-login">
+                <i class="bi bi-box-arrow-in-right"></i> Entrar
+            </button>
+        </form>
+        
+        <div class="text-center mt-4">
+            <small class="text-muted">
+                <i class="bi bi-info-circle"></i> 
+                Use as credenciais do sistema atual
+            </small>
+        </div>
+    </div>
+</div>
+{% endblock %}
