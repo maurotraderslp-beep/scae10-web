@@ -151,6 +151,43 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Criar pasta se não existir
 import os
+
+e a configuração do banco e substitua por:
+# Database configuration
+import os
+
+DATABASE_URL = os.getenv('DATABASE_URL')
+
+if DATABASE_URL and 'postgresql' in DATABASE_URL:
+    # Produção (PostgreSQL)
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.config(default=DATABASE_URL)
+    }
+elif DATABASE_URL and 'sqlite' in DATABASE_URL:
+    # Teste (SQLite)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+else:
+    # Local (Firebird)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django_firebird',
+            'NAME': 'C:/SCAE10/BANCO/SCAE10.FDB',
+            'USER': 'SYSDBA',
+            'PASSWORD': 'masterkey',
+            'HOST': 'localhost',
+            'PORT': '3025',
+            'OPTIONS': {
+                'charset': 'WIN1252',
+            }
+        }
+    }
+
 if not os.path.exists(MEDIA_ROOT):
     os.makedirs(MEDIA_ROOT, exist_ok=True)
     print(f"[INFO] Pasta media criada em: {MEDIA_ROOT}")
